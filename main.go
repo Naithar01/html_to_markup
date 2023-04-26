@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/Naithar01/html_to_markup/fix"
 	"golang.org/x/net/html"
 )
 
@@ -20,5 +18,4 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(fix.GetBodyData(doc))
 }
