@@ -1,6 +1,7 @@
 package fix
 
 import (
+	"errors"
 	"fmt"
 
 	"golang.org/x/net/html"
@@ -9,25 +10,26 @@ import (
 func FilterBodyData(doc *html.Node) (*html.Node, error) {
 	var body *html.Node
 
-	// doc 변수에 있는 태그를 순회 ( 트리구조 )
-	// body 태그가 나오면 변수에 넣고 반환
-	// 재귀 함수 형식이기에 함수 변수를 선언
 	var findBodyFunc func(*html.Node)
 
 	findBodyFunc = func(node *html.Node) {
 		if node.Type == html.ElementNode && node.Data == "body" {
 			body = node
-
 			return
 		}
 
-		for node_content := node.FirstChild; node_content != nil; node_content = node.LastChild {
-			findBodyFunc(node)
+		for children_node := node.FirstChild; children_node != nil; children_node = children_node.NextSibling {
+			findBodyFunc(children_node)
 		}
 	}
 
-	return body, nil
+	findBodyFunc(doc)
 
+	if body == nil {
+		return nil, errors.New("no find body")
+	}
+
+	return body, nil
 }
 
 func GetBodyData(doc *html.Node) string {
