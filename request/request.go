@@ -7,6 +7,7 @@ import (
 )
 
 func RequestHttp(url string) (*html.Node, error) {
+	// Get HTML
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -17,6 +18,7 @@ func RequestHttp(url string) (*html.Node, error) {
 
 	defer resp.Body.Close()
 
+	// HTML => ( Parse) => tree HTML
 	doc, err := html.Parse(resp.Body)
 	if err != nil {
 		resp.Body.Close()
