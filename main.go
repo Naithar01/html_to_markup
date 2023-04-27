@@ -24,4 +24,6 @@ func main() {
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	fix.PrintBodyNodeList(body, "")
 }
