@@ -13,10 +13,10 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	body, err := fix.FilterBodyData(doc)
-	if err != nil {
-		log.Println(err.Error())
+	body, err := fix.SelectTagElements(doc, "p")
+
+	for _, element := range body {
+		fix.PrintNodeList(element)
 	}
 
-	fix.PrintBodyNodeList(body)
 }

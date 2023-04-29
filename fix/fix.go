@@ -8,33 +8,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-func FilterBodyData(doc *html.Node) (*html.Node, error) {
-	var body *html.Node
-
-	var findBodyFunc func(*html.Node)
-
-	findBodyFunc = func(node *html.Node) {
-		if node.Type == html.ElementNode && node.Data == "body" {
-			body = node
-			return
-		}
-
-		for children_node := node.FirstChild; children_node != nil; children_node = children_node.NextSibling {
-			findBodyFunc(children_node)
-		}
-	}
-
-	findBodyFunc(doc)
-
-	if body == nil {
-		return nil, errors.New("no find body")
-	}
-
-	return body, nil
-}
-
 // Start Body => ... => nil
-func PrintBodyNodeList(element_node *html.Node) {
+func PrintNodeList(element_node *html.Node) {
 
 	var printNodeFunc func(*html.Node, string)
 
@@ -74,4 +49,62 @@ func PrintNodeAttr(element_node_attrs []html.Attribute) {
 	for _, attr := range element_node_attrs {
 		fmt.Printf(` %s="%s"`, attr.Key, attr.Val)
 	}
+}
+
+func SelectTagElement(html_element *html.Node, tag_name string) (*html.Node, error) {
+	var return_element *html.Node
+
+	var select_tag_func func(*html.Node)
+
+	select_tag_func = func(element *html.Node) {
+		if element == nil {
+			return
+		}
+
+		if element.Type == html.ElementNode && element.Data == tag_name && return_element == nil {
+			return_element = element
+		}
+
+		for children_node := element.FirstChild; children_node != nil; children_node = children_node.NextSibling {
+			select_tag_func(children_node)
+		}
+
+	}
+
+	select_tag_func(html_element)
+
+	if return_element == nil {
+		return nil, errors.New("cant find tag data")
+	}
+
+	return return_element, nil
+}
+
+func SelectTagElements(html_element *html.Node, tag_name string) ([]*html.Node, error) {
+	var return_element []*html.Node
+
+	var select_tag_func func(*html.Node)
+
+	select_tag_func = func(element *html.Node) {
+		if element == nil {
+			return
+		}
+
+		if element.Type == html.ElementNode && element.Data == tag_name {
+			return_element = append(return_element, element)
+		}
+
+		for children_node := element.FirstChild; children_node != nil; children_node = children_node.NextSibling {
+			select_tag_func(children_node)
+		}
+
+	}
+
+	select_tag_func(html_element)
+
+	if return_element == nil {
+		return nil, errors.New("cant find tag data")
+	}
+
+	return return_element, nil
 }
