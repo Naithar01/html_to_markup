@@ -8,14 +8,15 @@ import (
 	"golang.org/x/net/html"
 )
 
-func PrintNodeAttr(element_node_attrs []html.Attribute) {
-	for _, attr := range element_node_attrs {
-		fmt.Printf(` %s="%s"`, attr.Key, attr.Val)
-	}
-}
-
 // Start Body => ... => nil
 func PrintNodeList(element_node *html.Node) {
+	var print_node_attr_func func(element_node_attrs []html.Attribute)
+
+	print_node_attr_func = func(element_node_attrs []html.Attribute) {
+		for _, attr := range element_node_attrs {
+			fmt.Printf(` %s="%s"`, attr.Key, attr.Val)
+		}
+	}
 
 	var printNodeFunc func(*html.Node, string)
 
@@ -29,7 +30,7 @@ func PrintNodeList(element_node *html.Node) {
 		if element_node.Type == html.ElementNode {
 			fmt.Printf("%s<%s", indent, element_node.Data)
 
-			PrintNodeAttr(element_node.Attr)
+			print_node_attr_func(element_node.Attr)
 
 			fmt.Println(">")
 
@@ -113,6 +114,17 @@ func SelectClassElement(html_element *html.Node, selector string) (*html.Node, e
 	classes := strings.Split(selector, ".")[1:] // 셀렉터에서 클래스 이름만 추출합니다.
 	var return_element *html.Node
 
+	var select_element_attr_func func([]html.Attribute, string) string
+
+	select_element_attr_func = func(element_attrs []html.Attribute, class_name string) string {
+		for _, attr := range element_attrs {
+			if attr.Key == class_name {
+				return attr.Val
+			}
+		}
+		return ""
+	}
+
 	var select_element_func func(*html.Node)
 
 	select_element_func = func(element *html.Node) {
@@ -121,14 +133,14 @@ func SelectClassElement(html_element *html.Node, selector string) (*html.Node, e
 		}
 
 		if element.Type == html.ElementNode {
-			class_names := strings.Fields(element.Attr[0].Val)        // 클래스 이름을 추출합니다.
-			if len(class_names) > 0 && class_names[0] == classes[0] { // 클래스 이름이 셀렉터에 지정된 클래스와 일치하는지 확인합니다.
+			class_names := strings.Fields(select_element_attr_func(element.Attr, "class")) // Attr의 class:value 값
+			if len(class_names) > 0 && class_names[0] == classes[0] {                      // 클래스 이름이 셀렉터에 지정된 클래스와 일치하는지 확인합니다.
 				if len(classes) == 1 { // 셀렉터에서 클래스가 한 개만 지정된 경우에는 바로 반환합니다.
 					return_element = element
 					return
 				} else { // 셀렉터에서 클래스가 여러 개 지정된 경우에는 재귀 호출하여 다음 클래스를 찾습니다.
 					next_classes := "." + strings.Join(classes[1:], ".")
-					next_element, err := SelectClassElement(element.FirstChild, next_classes)
+					next_element, err := SelectClassElement(element, next_classes)
 					if err == nil {
 						return_element = next_element
 						return
