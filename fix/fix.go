@@ -109,7 +109,7 @@ func SelectTagElements(html_element *html.Node, tag_name string) ([]*html.Node, 
 	return return_element, nil
 }
 
-func SelectElementByClass(html_element *html.Node, selector string) (*html.Node, error) {
+func SelectClassElement(html_element *html.Node, selector string) (*html.Node, error) {
 	classes := strings.Split(selector, ".")[1:] // 셀렉터에서 클래스 이름만 추출합니다.
 	var return_element *html.Node
 
@@ -128,7 +128,7 @@ func SelectElementByClass(html_element *html.Node, selector string) (*html.Node,
 					return
 				} else { // 셀렉터에서 클래스가 여러 개 지정된 경우에는 재귀 호출하여 다음 클래스를 찾습니다.
 					next_classes := "." + strings.Join(classes[1:], ".")
-					next_element, err := SelectElementByClass(element.FirstChild, next_classes)
+					next_element, err := SelectClassElement(element.FirstChild, next_classes)
 					if err == nil {
 						return_element = next_element
 						return
