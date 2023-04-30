@@ -163,3 +163,56 @@ func SelectClassElement(html_element *html.Node, selector string) (*html.Node, e
 
 	return return_element, nil
 }
+
+func SelectClassElements(html_element *html.Node, selector string) ([]*html.Node, error) {
+	classes := strings.Split(selector, ".")[1:]
+	var return_elements []*html.Node
+
+	var select_element_attr_func func([]html.Attribute, string) string
+
+	select_element_attr_func = func(element_attrs []html.Attribute, class_name string) string {
+		for _, attr := range element_attrs {
+			if attr.Key == class_name {
+				return attr.Val
+			}
+		}
+		return ""
+	}
+
+	var select_element_func func(*html.Node)
+
+	select_element_func = func(element *html.Node) {
+		if element == nil {
+			return
+		}
+
+		if element.Type == html.ElementNode {
+			class_names := strings.Fields(select_element_attr_func(element.Attr, "class"))
+			if len(class_names) > 0 && class_names[0] == classes[0] {
+				if len(classes) == 1 {
+					return_elements = append(return_elements, element)
+					return
+				} else {
+					next_classes := "." + strings.Join(classes[1:], ".")
+					next_elements, err := SelectClassElements(element, next_classes)
+					if err == nil {
+						return_elements = append(return_elements, next_elements...)
+						return
+					}
+				}
+			}
+		}
+
+		for child := element.FirstChild; child != nil; child = child.NextSibling {
+			select_element_func(child)
+		}
+	}
+
+	select_element_func(html_element)
+
+	if len(return_elements) == 0 {
+		return nil, errors.New("cant find element with selector")
+	}
+
+	return return_elements, nil
+}

@@ -8,19 +8,22 @@ import (
 )
 
 func main() {
-	doc, err := request.RequestHttp("https://naithar01.tistory.com/168")
+	doc, err := request.RequestHttp("https://naithar01.tistory.com/")
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	body, err := fix.SelectTagElement(doc, "body")
 
-	d, err := fix.SelectClassElement(body, ".wrap-right")
+	d, err := fix.SelectClassElements(body, ".wrap-right.main.area-main.area-common.article-type-common")
 
 	if d == nil {
 		log.Println("zz")
 	}
 
-	fix.PrintNodeList(d)
+	for _, dd := range d {
+		fix.PrintNodeList(dd)
+
+	}
 
 }
